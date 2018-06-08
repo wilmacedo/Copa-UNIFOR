@@ -302,12 +302,10 @@
             for (i2 = 0; i2 < tamanho; i2++)
             {
                 // Verficacao de ordem da tabela
-                if (pontuacao[i][0] == temp[i2][0])
-                {
-                    linha.insertCell(0).innerHTML = imagem(i2) + times[i2];
-                }
+                if (pontuacao[i][0] == temp[i2][0]) linha.insertCell(0).innerHTML = imagem(i2) + times[i2];
             }
             
+            // Pontos
             linha.insertCell(1).innerHTML = pontuacao[i][0];
         }
     }
