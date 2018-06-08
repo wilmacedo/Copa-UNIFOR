@@ -1,0 +1,320 @@
+<head>
+    <meta charset="UTF-8">    
+    <link href="http://ui.racingpost.com/release/v159/ico/soccer/favicon.159.0.ico" rel="shortcut icon"/>
+    <title>Copa UNIFOR</title>
+    <style>
+        * {
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+        }
+
+        h2 {
+            text-align: center;
+        }
+        
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        td, th {
+            border: 1px solid #ccc;
+            text-align: center;
+            padding: 8px;
+        }
+        td img {
+            width: 25px;
+            height: 25px;
+            vertical-align: middle;
+        }
+        tr:nth-child(even) {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h2>Copa UNIFOR</h2>
+    </header>
+    <section>
+        <table id="jogos">
+            <tr>
+                <th>JOGO</th>
+                <th>GOLS 1</th>
+                <th>GOLS 2</th>
+                <th>PONTUACAO 1</th>
+                <th>PONTUACAO 2</th>
+            </tr>
+        </table>
+        <br>
+        <h2>Classificação</h2>
+        <table id="classificacao">
+            <tr>
+                <th>TIME</th>
+                <th>PONTUACAO</th>
+            </tr>
+        </table>
+    </section>
+</body>
+
+<script>
+    // Declarando variaveis globais
+    var timesCriados = false, jogosCriados = false;
+    var selecoes, jogos, pontuacao;
+    var times = ["Polonia", "Senegal", "Colombia", "Japao"];
+    
+    // Obter pontuacao do time
+    function obterPontos(time, gols1, gols2)
+    {
+        if (time == 0)
+        {
+            if (gols1 > gols2) return 3;
+            else if (gols2 > gols1) return 0;
+            else return 1;
+        } else
+        {
+            if (gols2 > gols1) return 3;
+            else if (gols1 > gols2) return 0;
+            else return 1;
+        }
+    }
+    
+    // Ordenar um vetor de forma descrecente
+    function ordenarVetor(vetor, vetor2)
+    {
+        for (i = 1; i < vetor.length; i++) 
+        {
+            var temp = vetor[i];
+            for (i2 = i - 1; i2 >= 0 && (vetor[i2] < temp); i2--) 
+            {
+                vetor[i2 + 1] = vetor[i2];
+            }
+            vetor[i2 + 1] = temp;
+        }
+        return vetor;
+    }
+    
+    // Organizar vetores em ordem decrescente
+    function organizarVetor()
+    {   
+        var pontos = new Array(times.length);
+        var gols = new Array(times.length);
+        for (i = 0; i < times.length; i++) 
+        {
+            pontos[i] = pontuacao[i][0];
+            gols[i] = pontuacao[i][1];
+        }
+        
+        ordenarVetor(pontos);
+        ordenarVetor(gols);
+        
+        for (i = 0; i < times.length; i++) 
+        {
+            pontuacao[i][0] = pontos[i];
+            pontuacao[i][1] = gols[i];
+        }
+    }
+    
+    // Obter hash da imagem do time
+    function imagem(time)
+    {
+        var url;
+        if (time == 0) url = "https://ssl.gstatic.com/onebox/media/sports/logos/yTS_Piy3M1wUBnqU0n5aAw_96x96.png";
+        else if (time == 1) url = "https://ssl.gstatic.com/onebox/media/sports/logos/zw3ac5sIbH4DS6zP5auOkQ_96x96.png";
+        else if (time == 2) url = "https://ssl.gstatic.com/onebox/media/sports/logos/tXHnA_tDylayacdjWQCJvw_96x96.png";
+        else url = "https://ssl.gstatic.com/onebox/media/sports/logos/by4OltvtZz7taxuQtkiP3A_96x96.png";
+        
+        return "<img src='" + url + "'>";
+    }
+    
+    // Funcao para estabelecer valores na matriz em relacao aos times
+    function criarTimes()
+    {
+        // Declarando valores de linha e coluna
+        var linha = times.length;
+        var coluna = 1;
+        
+        // Criando matriz das selecoes
+        selecoes = new Array(linha);
+        for (i = 0; i < linha; i++) selecoes[i] = new Array(coluna);
+        
+        // Alocando valores aos espacos da matriz
+        for (l = 0; l < linha; l++) for (c = 0; c < coluna; c++) selecoes[l][c] = l;
+        
+        // Declarando que os times foram criados
+        timesCriados = true;
+    }
+    
+    function criarPontuacao()
+    {
+        // Declarando valores de linha e coluna
+        var linha = times.length;
+        var coluna = 2;
+        
+        // Criando matriz das selecoes
+        pontuacao = new Array(linha);
+        for (i = 0; i < linha; i++) pontuacao[i] = new Array(coluna);
+        
+        // Alocando valores aos espacos da matriz
+        for (l = 0; l < linha; l++) for (c = 0; c < coluna; c++) pontuacao[l][c] = 0;
+    }
+    
+    // Criando resultados aleatores dos jogos
+    function criarJogos()
+    {
+        // Criando times e pontuacao
+        if (!timesCriados)
+        {
+            criarTimes();
+            criarPontuacao();
+        }
+        
+        // Declarando valores de linha e coluna
+        var linha = times.length + 2;
+        var coluna = 6;
+        
+        // Criando matriz dos jogos
+        jogos = new Array(linha);
+        for (i = 0; i < linha; i++) jogos[i] = new Array(coluna);
+        
+        // Alocando valores aos espacos da matriz
+        for (l = 0; l < linha; l++) for (c = 0; c < coluna; c++)
+        {
+            // Declarando variaveis para time
+            var time1 = 0;
+            var time2;
+            
+            // Checagem para selecao de times
+            if (l == 0 || l == 1 || l == 2)
+            {
+                if (l == 0) time2 = 1;
+                else if (l == 1) time2 = 2;
+                else if (l == 2) time2 = 3;
+            } else if (l == 3 || l == 4)
+            {
+                time1 = 1;
+                if (l == 3) time2 = 2;
+                else if (l == 4) time2 = 3;
+            } else if (l == 5)
+            {
+                time1 = 2;
+                time2 = 3;
+            }
+            
+            // Preenchendo valor de times
+            jogos[l][0] = time1;
+            jogos[l][1] = time2;
+            
+            // Criando vairaveis para gols
+            var golsTime1 = parseInt(Math.random() * 7);
+            var golsTime2 = parseInt(Math.random() * 7);
+            
+            // Preenchendo valor de gols
+            if (c == 2) 
+            {
+                jogos[l][2] = golsTime1;
+                pontuacao[time1][1] += golsTime1;
+            }
+            else if (c == 3) 
+            {
+                jogos[l][3] = golsTime2;
+                pontuacao[time2][1] += golsTime2;
+            }
+            
+            // Criando variaveis para pontuacao
+            var pontosTime1 = obterPontos(0, jogos[l][2], jogos[l][3]);
+            var pontosTime2 = obterPontos(1, jogos[l][2], jogos[l][3]);
+            
+            // Preenchendo valor de pontuacao do jogo especifico
+            jogos[l][4] = pontosTime1;
+            jogos[l][5] = pontosTime2;
+            
+            // Limitando adicao de pontos
+            if (c == 4) {
+                pontuacao[time1][0] += pontosTime1;
+            } else if (c == 5)
+            {
+                pontuacao[time2][0] += pontosTime2;
+            }
+        }
+        
+        // Declarando que os jogos foram criados
+        jogosCriados = true;
+    }
+    
+    // Criando tabela de visualizacao de dados
+    function criarTabelaJogos()
+    {
+        // Criando jogos
+        if (!jogosCriados) criarJogos();
+        
+        // Declarando variaveis
+        var tamanho = times.length + 2;
+        var tabela = document.getElementById("jogos");
+        
+        // Criando um loop finito
+        for (i = 0; i < tamanho; i++)
+        {
+            // Criando linha na tabela
+            var linha = tabela.insertRow(i + 1);
+            
+            // Jogos
+            linha.insertCell(0).innerHTML = imagem(jogos[i][0]) + times[jogos[i][0]] + " x " + times[jogos[i][1]] + imagem(jogos[i][1]);
+            // Gols 1
+            linha.insertCell(1).innerHTML = jogos[i][2];
+            // Gols 2
+            linha.insertCell(2).innerHTML = jogos[i][3];
+            // Pontos 1
+            linha.insertCell(3).innerHTML = jogos[i][4];
+            // Pontos 2
+            linha.insertCell(4).innerHTML = jogos[i][5];
+        }
+    }
+    
+    // Criar tabela de classificacao
+    function criarTabelaClassificacao()
+    {
+        // Declarando variaveis
+        var tamanho = times.length;
+        var coluna = 2;
+        var tabela = document.getElementById("classificacao");
+        
+        var anterior;
+        var cont = 0;
+        
+        // Criando matriz temporaria
+        var temp = new Array(tamanho);
+        for (i = 0; i < tamanho; i++) temp[i] = new Array(coluna);
+        for (l = 0; l < tamanho; l++) for (c = 0; c < coluna; c++) temp[l][c] = pontuacao[l][c];
+        
+        // Organizando vetor
+        organizarVetor();
+        
+        // Criando loop para linhas da tabela
+        for (i = 0; i < tamanho; i++)
+        {
+            // Criando linha da tabela
+            var linha = tabela.insertRow(i + 1);
+            
+            // Iniciando verificacao da ordem da tabela
+            for (i2 = 0; i2 < tamanho; i2++)
+            {
+                // Verficacao de ordem da tabela
+                if (pontuacao[i][0] == temp[i2][0])
+                {
+                    linha.insertCell(0).innerHTML = imagem(i2) + times[i2];
+                }
+            }
+            
+            linha.insertCell(1).innerHTML = pontuacao[i][0];
+        }
+    }
+    
+    // Criando tabela de jogos
+    criarTabelaJogos();
+    
+    // Criando tabela de classificacao
+    criarTabelaClassificacao();
+</script>
